@@ -13,6 +13,13 @@ module Arel
           # CPK
           #o.orders = [pk.asc]
           o.orders = pk.map {|a_pk| a_pk.asc}
+          o.orders.each_with_index do |node, i|
+            rel = node.expr.relation
+            expr_name = node.expr.name
+            if expr_name.is_a?(CompositePrimaryKeys::CompositeKeys)
+              o.orders[i] = expr_name.collect { |a| rel[a].send(node.direction) }
+            end
+          end
         end
       end
 
